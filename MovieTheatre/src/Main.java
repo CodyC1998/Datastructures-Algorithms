@@ -13,7 +13,7 @@ public class Main {
             System.out.println("4. Exit");
             System.out.print("Choose an option: ");
             int choice = scanner.nextInt();
-            scanner.nextLine(); // consume newline
+            scanner.nextLine(); 
 
             if (choice == 1) {
                 System.out.print("Enter seat to reserve (e.g. B3): ");
