@@ -82,5 +82,35 @@ public class SingleLinkedListTest {
     }
 
     //implement deleting a node from single linked list
+    public void deleteNode(int position){
+        if (head == null) {
+            System.out.println("The list does not exist.");
+            return;
+        }
 
+        if (position < 0 || position >= size) {
+            System.out.println("Invalid position.");
+        }
+
+        if (position == 0) {
+            head = head.next;
+            size--;
+            if (size == 0){
+                tail = null;
+            }
+            return;
+        }
+
+        Node tempNode = head;
+        for (int i = 0; i < position - 1; i++) {
+            tempNode = tempNode.next;
+        }
+
+        tempNode.next = tempNode.next.next;
+        if (position == size - 1) {
+            tail = tempNode;
+        }
+
+        size--;
+    }
 }

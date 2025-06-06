@@ -9,7 +9,9 @@ public class Main {
         sll.insertLinkedList(3,2);
         sll.insertLinkedList(4,3);
         sll.traverseLinkedList();
-        sll.searchNode(5);
+        sll.searchNode(3);
+        sll.deleteNode(2);
+        sll.traverseLinkedList();
 
     }
 }
