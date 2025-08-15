@@ -1,5 +1,6 @@
 package com.keyin.bstapp.model;
 
+@SuppressWarnings("unused")
 public class BstNode {
     private int value;
     private BstNode left;

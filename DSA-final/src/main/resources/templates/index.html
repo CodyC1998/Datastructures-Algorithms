@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <title>Binary Search Tree App</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <link rel="stylesheet" href="/styles/styles.css">
+</head>
+<body>
+<header>
+    <nav>
+        <button id="nav-build" class="active" onclick="showSection('build')">Build Tree</button>
+        <button id="nav-prev" onclick="showSection('previous')">Previous Trees</button>
+    </nav>
+</header>
+
+<main>
+    <section id="section-build" class="active">
+        <h1>Build Binary Search Tree</h1>
+        <div>
+            <label for="numbers"></label><input id="numbers" type="text" placeholder="e.g. 8,3,10,1,6,14,4,7,13"/>
+            <label><input id="balanced" type="checkbox"/> Balanced</label>
+            <button class="action" id="submitBtn">Build Tree</button>
+        </div>
+        <h2>Result (JSON)</h2>
+        <pre id="output">Submit some numbers to see the tree…</pre>
+    </section>
+
+    <section id="section-previous">
+        <h1>Previous Trees</h1>
+        <table>
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Created</th>
+                <th>Input</th>
+                <th>Tree JSON</th>
+            </tr>
+            </thead>
+            <tbody id="rows">
+            <tr><td colspan="4">Loading…</td></tr>
+            </tbody>
+        </table>
+    </section>
+</main>
+
+<script>
+    const navBuild=document.getElementById('nav-build');
+    const navPrev=document.getElementById('nav-prev');
+    const sectionBuild=document.getElementById('section-build');
+    const sectionPrev=document.getElementById('section-previous');
+    const out=document.getElementById('output');
+
+    function showSection(which){
+        if(which==='build'){
+            sectionBuild.classList.add('active');
+            sectionPrev.classList.remove('active');
+            navBuild.classList.add('active');
+            navPrev.classList.remove('active');
+        }else{
+            sectionPrev.classList.add('active');
+            sectionBuild.classList.remove('active');
+            navPrev.classList.add('active');
+            navBuild.classList.remove('active');
+            loadRows();
+        }
+    }
+
+    document.getElementById('submitBtn').addEventListener('click',async()=>{
+        const inputString=document.getElementById('numbers').value.trim();
+        const balanced=document.getElementById('balanced').checked;
+        if(!inputString){out.textContent='Please enter some numbers.';return;}
+
+        const numbers=inputString.split(/[,\s]+/).map(s=>parseInt(s,10)).filter(n=>!Number.isNaN(n));
+
+        try{
+            const res=await fetch(`/process-numbers?balanced=${balanced}`,{
+                method:'POST',
+                headers:{'Content-Type':'application/json'},
+                body:JSON.stringify({numbers:numbers})
+            });
+            if(!res.ok){out.textContent='Error: '+res.status+' '+res.statusText;return;}
+            const data=await res.json();
+            out.textContent=JSON.stringify(data,null,2);
+        }catch(e){
+            out.textContent='Request failed: '+e.message;
+        }
+    });
+
+
+    async function loadRows() {
+        const tbody = document.getElementById('rows');
+        try {
+            const res = await fetch('/previous-trees');
+            if (!res.ok) throw new Error(res.status + ' ' + res.statusText);
+            const data = await res.json();
+            if (!Array.isArray(data) || data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4">No records yet.</td></tr>';
+                return;
+            }
+            tbody.innerHTML = data.map(r => {
+                let prettyJson = '';
+                try {
+                    prettyJson = JSON.stringify(JSON.parse(r.treeJson ?? '{}'), null, 2);
+                } catch {
+                    prettyJson = r.treeJson ?? '';
+                }
+                return '<tr>'
+                    + '<td>' + (r.id ?? '') + '</td>'
+                    + '<td>' + (r.createdAt ?? '') + '</td>'
+                    + '<td><code>' + String(r.inputString ?? '').replaceAll('<', '&lt;') + '</code></td>'
+                    + '<td><pre class="json">' + String(prettyJson).replaceAll('<', '&lt;') + '</pre></td>'
+                    + '</tr>';
+            }).join('');
+        } catch (e) {
+            tbody.innerHTML = '<tr><td colspan="4">Failed to load: ' + e.message + '</td></tr>';
+        }
+    }
+
+</script>
+</body>
+</html>

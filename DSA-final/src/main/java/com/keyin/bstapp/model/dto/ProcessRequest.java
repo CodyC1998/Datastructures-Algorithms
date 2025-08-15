@@ -2,6 +2,7 @@ package com.keyin.bstapp.model.dto;
 
 import java.util.List;
 
+@SuppressWarnings("unused")
 public class ProcessRequest {
 
     private List<Integer> numbers;

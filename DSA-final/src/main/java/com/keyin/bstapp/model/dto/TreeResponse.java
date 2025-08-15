@@ -1,5 +1,6 @@
 package com.keyin.bstapp.model.dto;
 
+@SuppressWarnings("unused")
 public class TreeResponse {
 
     private TreeNode root;
